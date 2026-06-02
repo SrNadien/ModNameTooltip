@@ -4,7 +4,6 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -15,18 +14,24 @@ import java.util.function.Consumer;
 
 @Mod(Constants.MOD_ID)
 public class ModNameTooltipClient {
-	public ModNameTooltipClient(IEventBus modBus) {
-		Config config = new Config();
-		ModLoadingContext modLoadingContext = ModLoadingContext.get();
-		ModContainer activeContainer = modLoadingContext.getActiveContainer();
-		activeContainer.registerConfig(ModConfig.Type.CLIENT, config.getConfigSpec());
-		TooltipEventHandler tooltipEventHandler = new TooltipEventHandler(config);
-		IEventBus eventBus = NeoForge.EVENT_BUS;
-		addListener(modBus, ModConfigEvent.class, EventPriority.NORMAL, config::onConfigChanged);
-		addListener(eventBus, ItemTooltipEvent.class, EventPriority.LOW, tooltipEventHandler::onToolTip);
-	}
-	
-	private static <T extends Event> void addListener(IEventBus eventBus, Class<T> eventType, EventPriority priority, Consumer<T> listener) {
-		eventBus.addListener(priority, false, eventType, listener);
-	}
+
+  
+    public ModNameTooltipClient(IEventBus modBus, ModContainer modContainer) {
+        Config config = new Config();
+        modContainer.registerConfig(ModConfig.Type.CLIENT, config.getConfigSpec());
+
+        TooltipEventHandler tooltipEventHandler = new TooltipEventHandler(config);
+
+        IEventBus eventBus = NeoForge.EVENT_BUS;
+        addListener(modBus, ModConfigEvent.class, EventPriority.NORMAL, config::onConfigChanged);
+        addListener(eventBus, ItemTooltipEvent.class, EventPriority.LOW, tooltipEventHandler::onToolTip);
+    }
+
+    private static <T extends Event> void addListener(
+            IEventBus eventBus,
+            Class<T> eventType,
+            EventPriority priority,
+            Consumer<T> listener) {
+        eventBus.addListener(priority, false, eventType, listener);
+    }
 }
